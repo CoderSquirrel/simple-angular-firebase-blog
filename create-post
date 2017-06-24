@@ -1,0 +1,86 @@
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    
+<body>
+
+<div class="container jumbotron">
+
+<div ng-app="myApp" ng-controller="myCtrl">
+
+<p>Title:</p>
+<p><input type="text" ng-model="post.title" /></p>
+  <p>Post:</p>
+   <p><textarea type="text" ng-model="post.content" /></textarea></p>
+  <p><button type="button" ng-click="savePost()" ng-disabled="!post.title || !post.content">Save</button></p>
+<br>
+</div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+
+<script>
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope) {
+
+
+$scope.post = {
+date: new Date()
+}
+
+function snapshotToArray(snapshot) {
+    var returnArr = [];
+
+    snapshot.forEach(function(childSnapshot) {
+        var item = childSnapshot.val();
+        item.key = childSnapshot.key;
+
+        returnArr.push(item);
+    });
+
+    return returnArr;
+};
+
+var database = firebase.database();
+init = () => {
+database.ref('tags').limitToLast(10).once('value').then(function(snapshot) {
+  console.log(snapshotToArray(snapshot));
+});
+}
+
+init();
+
+$scope.savePost = () => {
+var newPostKey = database.ref().child('posts').push().key;
+var updates = {};
+updates['/posts/' + newPostKey] = angular.copy($scope.post);
+  return firebase.database().ref().update(updates).then(function(snapshot) {
+  $scope.post = { date: new Date(), title: '',content: ''}
+  $scope.$apply();
+alert('Enviado');
+  }).catch((response)=> {
+  alert('Ocorreu algum problema');
+  console.error(response);
+  });
+}
+
+});
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/4.1.3/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBlRg7yVNcCs81nZuuAaXNZ4APefDNa00k",
+    authDomain: "triskel.firebaseapp.com",
+    databaseURL: "https://triskel.firebaseio.com",
+    projectId: "firebase-triskel",
+    storageBucket: "firebase-triskel.appspot.com",
+    messagingSenderId: "442322286439"
+  };
+  firebase.initializeApp(config);
+</script>
+</div>
+</body>
+</html>

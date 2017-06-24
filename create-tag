@@ -1,0 +1,61 @@
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.4/angular.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    
+<body>
+
+<div class="container jumbotron">
+
+<div ng-app="myApp" ng-controller="myCtrl">
+
+<p>Title:</p>
+<p><input type="text" ng-model="tag.tag" /></p>
+  <p><button type="button" ng-click="saveTag()" ng-disabled="!tag.tag">Save</button></p>
+<br>
+</div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+
+<script>
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope) {
+$scope.tag = {
+date: new Date()
+}
+var database = firebase.database();
+
+$scope.saveTag = () => {
+var newKey = database.ref().child('tags').push().key;
+var updates = {};
+updates['/tags/' + newKey] = angular.copy($scope.tag);
+  return firebase.database().ref().update(updates).then(function(snapshot) {
+  $scope.tag = { date: new Date(), tag: ''}
+  $scope.$apply();
+alert('Enviado');
+  }).catch((response)=> {
+  alert('Ocorreu algum problema');
+  console.error(response);
+  });
+}
+
+});
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/4.1.3/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBlRg7yVNcCs81nZuuAaXNZ4APefDNa00k",
+    authDomain: "triskel.firebaseapp.com",
+    databaseURL: "https://triskel.firebaseio.com",
+    projectId: "firebase-triskel",
+    storageBucket: "firebase-triskel.appspot.com",
+    messagingSenderId: "442322286439"
+  };
+  firebase.initializeApp(config);
+</script>
+</div>
+</body>
+</html>
